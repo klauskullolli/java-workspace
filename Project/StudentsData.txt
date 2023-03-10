@@ -1,0 +1,45 @@
+5
+1
+sindi
+shima
+sshima19@epoka.edu.al
+1234
+2
+Computer Organisation-true-0
+Calculus 1-false
+;
+2
+Kelvi
+De
+kelvin@gmail.com
+12345678
+2
+Computer Organisation-false
+C Programming-false
+;
+3
+klaus
+kull
+klaus@gmail
+klaus123
+2
+Computer Organisation-true-0
+Calculus 1-false
+;
+4
+Karola
+Refati
+test1@gmail.com
+1234
+2
+Computer Organisation-false
+C Programming-false
+;
+5
+Test
+Test
+test@gmail.com
+1234
+1
+Calculus 1-true-0
+;

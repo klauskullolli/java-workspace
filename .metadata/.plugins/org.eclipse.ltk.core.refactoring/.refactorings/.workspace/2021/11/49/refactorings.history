@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename resource &apos;Multithreading_Week#1&apos; to &apos;Multithreading&apos;" description="Rename resource &apos;Multithreading_Week#1&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="/Multithreading_Week#1" name="Multithreading" stamp="1638213655952" updateReferences="true"/>
+</session>

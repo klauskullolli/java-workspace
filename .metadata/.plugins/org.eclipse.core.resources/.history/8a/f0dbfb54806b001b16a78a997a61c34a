@@ -1,0 +1,241 @@
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Optional;
+
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
+import javafx.stage.Stage;
+import javafx.util.Duration;
+
+//Class that for a border pane where a subject can created 
+public class ExamPane extends BorderPane {
+	
+	//Exam class is needed to save exam data
+	private static Exam exam = new Exam() ;
+	
+	//Needed for warnings where question is not saved
+	private int nrOfQues ; 
+	
+	//Constructor of the class
+	ExamPane(String subject){
+		exam.setSubject(subject);
+		this.dispaly() ;
+	}
+	
+	//method that return a pane arrangement of a text with moving animation
+	public static Pane titleAnimation(  Text text) {
+		StackPane pane = new StackPane() ;
+        String str = text.getText() ; 
+        pane.getChildren().add(text) ;
+        final IntegerProperty i = new SimpleIntegerProperty(0);
+        Timeline timeline = new Timeline();
+        KeyFrame keyFrame = new KeyFrame(
+                Duration.seconds(0.1),
+                event -> {
+                    if (i.get() > str.length()) {
+                        timeline.stop();
+                    } else {
+                        text.setText(str.substring(0, i.get()));
+                        i.set(i.get() + 1);
+                    }
+                });
+        timeline.getKeyFrames().add(keyFrame);
+        timeline.setCycleCount(Animation.INDEFINITE);
+        timeline.play();
+        return pane ;
+	}
+	
+	//Method that save exam in database
+	private void saveExam() throws FileNotFoundException {
+		    String path  = String.format("%s.txt",exam.getSubject()) ;
+			PrintWriter output  = new PrintWriter(path) ;
+			
+			output.print(exam);
+			output.flush();
+			output.close();
+	}
+	
+	//Method used to see if a question created is saved or no
+	private boolean isSavedQues(ArrayList<QuestionPane> questions) {
+		for (int i =  0 ; i< questions.size() ; i++) {
+			if(questions.get(i).isSaved()==false) {
+				this.nrOfQues =i+1 ; 
+				return false ;
+				}
+			
+		}
+		
+		return true ; 
+	}
+	
+	
+	
+	//Main method where pane is created 
+    public  void dispaly() {
+    	
+    	//Question pane array list is needed because a exam contain multiple questions 
+    	ArrayList<QuestionPane> questions = new  ArrayList<QuestionPane>()  ;
+    	
+    	//First show just structure of a question in this pane
+    	QuestionPane questionPane = new QuestionPane(1) ;
+    	questions.add(questionPane) ; 
+    	exam.addQuestion(questionPane.getQuestion());
+    	
+    	//Alert window needed to show relevant informations for specific action
+    	Alert alert = new Alert(AlertType.NONE); 
+    	
+    	
+    	
+    	
+    	Label l1 = new Label("Set subject") ;
+    	l1.setStyle("-fx-text-fill : green ; -fx-font-weight: bold; -fx-text-decoration: underline; -fx-font-size:28 ; -fx-font-family: \"Times New Roman\", Times, serif;")  ;
+    	
+    	
+    	
+    	VBox vb = new VBox(10) ; 
+    	HBox hb = new HBox(240) ; 
+  
+    	
+    	Label l2 = new Label("Press button to add more questions.") ;
+    	l2.setStyle("-fx-text-fill : Black ; -fx-font-weight: bold; -fx-text-decoration-line: underline; -fx-font-style: italic; -fx-font-size:20 ; -fx-font-family: \"Times New Roman\", Times, serif;")  ;
+    	
+    	
+    	//Button that is used to add question pane  and in same time question is saved in exam class
+    	Button addQBut = new Button("Add question") ;
+    	addQBut.setStyle("-fx-text-fill : blue ; -fx-font-style: italic; -fx-font-size:14")  ;
+    	addQBut.setOnAction( e -> {
+    		int i = questions.size() ; 
+    		QuestionPane question = new QuestionPane(i+1)  ; 
+    		questions.add(question) ;
+    		exam.addQuestion(question.getQuestion());
+    	    vb.getChildren().add(question)  ;
+		});
+    	
+    	
+    	//Button that is used to delete question pane
+    	Button remQBut = new Button("Remove question") ; 
+    	remQBut.setStyle("-fx-text-fill : blue ; -fx-font-style: italic; -fx-font-size:14")  ;
+    	remQBut.setOnAction(e->{
+    		try {
+    			int i= exam.getNrOfQuestions() ; 
+    			int j = vb.getChildren().size() ;
+    			int k = questions.size() ;
+    			questions.remove(k-1) ;
+    			exam.removeQuestion(i-1);
+    			vb.getChildren().remove(j-1) ;
+    			}
+    		
+    		catch (Exception ex) {
+    			alert.setAlertType(AlertType.WARNING);
+				alert.setContentText("No more questions to remove.");
+				alert.show();
+    		}
+    	});
+    	
+    	
+    	//Arrangement of contents in good looking view
+    	VBox vb1 = new VBox(5) ;
+    	vb1.setAlignment(Pos.BOTTOM_RIGHT);
+    	vb1.getChildren().addAll(addQBut, remQBut ) ; 
+    	
+    	HBox hb1 = new HBox(120) ; 
+    	hb1.getChildren().addAll(l2 , vb1) ; 
+    
+    	
+    	
+    	GridPane pane1 = new GridPane()  ;
+		pane1.setAlignment(Pos.CENTER);
+		pane1.setVgap(20);
+    	
+		
+		vb.setAlignment(Pos.CENTER);
+		vb.getChildren().addAll(questions) ;
+    	
+		//Used to scroll if nr of question is bigger than pane size itself
+		ScrollPane sp = new ScrollPane() ;
+	    
+		sp.setStyle("-fx-background-color:transparent;");
+	
+		
+		Text text  = new Text("Pofessor you can create your exam") ;
+		text.setFill (Color.rgb(129, 171, 255));
+		text.setStroke(Color.BLACK);
+		text.setStyle(" -fx-font-weight: bold; -fx-font-size:38 ; -fx-font-family: \"Times New Roman\", Times, serif;");
+		
+		
+		pane1.addRow(1, hb);
+		pane1.addRow(2, hb1);
+		pane1.addRow(3, vb);
+		
+		sp.setContent(pane1);
+		sp.pannableProperty().set(true);
+		
+		//Save button is used to save created exam in database
+		Button  saveB = new Button("Save") ;
+		saveB.setStyle("-fx-text-fill : red ; -fx-font-weight: bold ; -fx-font-size:24") ;
+    	saveB.setOnAction(e->{
+    		
+    		if(this.isSavedQues(questions)==false) {
+    			alert.setAlertType(AlertType.WARNING);
+				alert.setContentText(String.format("Save Question nr.%d", this.nrOfQues));
+				alert.show();
+    		}
+    		
+    		else {
+    			alert.setAlertType(AlertType.CONFIRMATION);
+        		alert.setContentText("Do you want to submit the exam?");
+        		Optional<ButtonType> result = alert.showAndWait();
+    		
+        		if(result.get() == ButtonType.OK) {
+        			try {
+            			this.saveExam() ;
+            			Stage stage = (Stage) saveB.getScene().getWindow();
+            			stage.close();
+            			ProgramExecution.mainWindow();
+            			
+        			} catch (FileNotFoundException e1) {
+        				alert.setAlertType(AlertType.WARNING);
+        				alert.setContentText("DataBase is not working properly!");
+        				alert.show();
+        			}
+        		}
+    	    		
+    
+    		
+    		}});
+		
+		//Again arrangement of pane
+    	this.setTop( titleAnimation(text));
+    	ExamPane.setMargin(sp , new Insets(50, 50, 50, 60));
+    	this.setCenter(sp);
+    	this.setBottom(saveB);
+    	ExamPane.setMargin(saveB , new Insets(20, 200, 50, 60));
+        ExamPane.setAlignment(saveB, Pos.BOTTOM_RIGHT);
+    	
+        
+    }
+}
+
+

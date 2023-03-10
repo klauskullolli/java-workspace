@@ -1,0 +1,2 @@
+module Klaus_java {
+}

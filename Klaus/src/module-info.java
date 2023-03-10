@@ -1,0 +1,3 @@
+module Klaus {
+	exports ciku;
+}
